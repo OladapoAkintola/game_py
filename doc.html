@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GamePy Documentation</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; background: #f5f5f5; }
+        h1, h2, h3, h4 { color: #2c3e50; }
+        pre { background: #2d2d2d; color: #f8f8f2; padding: 10px; overflow-x: auto; }
+        code { color: #e74c3c; }
+        section { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #ecf0f1; }
+        a { color: #2980b9; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+<section>
+<h1>GamePy Documentation</h1>
+<p>GamePy is a high-level 2D game development framework built on top of Tkinter, providing a Pygame-like experience with sprites, animations, timers, audio, and full Tkinter widget integration.</p>
+</section>
+
+<section>
+<h2>Installation</h2>
+<p>GamePy requires Python 3.x and <code>pygame</code> for audio support.</p>
+<pre><code>pip install pygame
+</code></pre>
+<p>Copy <code>game_py.py</code> into your project directory.</p>
+</section>
+
+<section>
+<h2>Overview</h2>
+<ul>
+    <li><strong>Window & Canvas:</strong> Main game area with layered sprites.</li>
+    <li><strong>Sprites & Animations:</strong> Rectangles, circles, images, and frame-based animations.</li>
+    <li><strong>Keyboard & Mouse Input:</strong> Continuous key tracking and mouse events.</li>
+    <li><strong>Timers:</strong> Non-blocking delayed/repeating events using Tkinter's <code>.after</code>.</li>
+    <li><strong>Audio:</strong> High-level wrapper over <code>pygame.mixer CE</code>.</li>
+    <li><strong>Tkinter Widget Integration:</strong> Insert Frames, Buttons, Labels, ScrollableFrames anywhere in the window.</li>
+</ul>
+</section>
+
+<section>
+<h2>Modules and Classes</h2>
+
+<h3>Window</h3>
+<p>Creates the main game window.</p>
+<pre><code>Window(width=800, height=600, title="Game", bg="black", fps=60)</code></pre>
+
+<h4>Attributes:</h4>
+<table>
+<tr><th>Attribute</th><th>Description</th></tr>
+<tr><td>canvas</td><td>Tkinter Canvas object</td></tr>
+<tr><td>root</td><td>Tkinter root window</td></tr>
+<tr><td>held_keys</td><td>Set of keys currently pressed</td></tr>
+<tr><td>mouse_pos</td><td>Current mouse (x, y)</td></tr>
+<tr><td>mouse_pressed</td><td>True if mouse clicked this frame</td></tr>
+</table>
+
+<h4>Methods:</h4>
+<table>
+<tr><th>Method</th><th>Description</th></tr>
+<tr><td>add_sprite(sprite)</td><td>Add a sprite to the game.</td></tr>
+<tr><td>add_widget(widget, x, y)</td><td>Add a Tkinter widget at a specific position.</td></tr>
+<tr><td>on_update(callback)</td><td>Function called every frame with <code>dt</code>.</td></tr>
+<tr><td>on_draw(callback)</td><td>Optional draw function.</td></tr>
+<tr><td>run()</td><td>Start the game loop.</td></tr>
+</table>
+
+<h3>Sprite</h3>
+<p>Represents a game object on the canvas.</p>
+<pre><code>Sprite(canvas, x=0, y=0, width=50, height=50, color="red", image=None, layer=0)</code></pre>
+
+<h4>Methods:</h4>
+<table>
+<tr><th>Method</th><th>Description</th></tr>
+<tr><td>move(dx, dy)</td><td>Move sprite relative to current position.</td></tr>
+<tr><td>set_position(x, y)</td><td>Move sprite to absolute position.</td></tr>
+<tr><td>get_position()</td><td>Returns (x, y) tuple.</td></tr>
+<tr><td>collide_with(other_sprite)</td><td>Returns True if colliding with another sprite.</td></tr>
+</table>
+
+<h3>AnimationSprite</h3>
+<p>Sprite with frame-based animation.</p>
+<pre><code>AnimationSprite(canvas, frames, x=0, y=0, speed=0.1, layer=0)</code></pre>
+<ul>
+<li><strong>frames:</strong> List of <code>PhotoImage</code> objects.</li>
+<li><strong>speed:</strong> Seconds per frame.</li>
+<li><strong>update(dt):</strong> Must be called each frame to advance animation.</li>
+</ul>
+
+<h3>Timer</h3>
+<p>Executes functions after delay or repeatedly.</p>
+<pre><code>Timer(window, delay_ms, callback, repeat=False)</code></pre>
+
+<h3>Audio</h3>
+<p>Optional audio system using <code>pygame.mixer CE</code>. Code is guarded to prevent errors if unavailable.</p>
+
+<h4>Sound</h4>
+<pre><code>sound = Sound("hit.wav")
+sound.play(loops=0)
+sound.stop()
+sound.set_volume(0.5)
+</code></pre>
+
+<h4>Music</h4>
+<pre><code>music = Music("background.mp3")
+music.play(loops=-1)
+music.stop()
+music.set_volume(0.5)
+</code></pre>
+
+</section>
+
+<section>
+<h2>Examples</h2>
+
+<h3>Basic Movement</h3>
+<pre><code>from game_py import Window, Sprite, Timer
+from tkinter import PhotoImage
+
+win = Window(800, 600, "Demo", bg="gray")
+
+player_img = PhotoImage(file="player.png")
+player = Sprite(win.canvas, x=100, y=100, image=player_img)
+win.add_sprite(player)
+
+def update(dt):
+    speed = 200 * dt
+    if "Left" in win.held_keys:
+        player.move(-speed, 0)
+    if "Right" in win.held_keys:
+        player.move(speed, 0)
+
+Timer(win, 1000, lambda: print("Timer fired!"), repeat=True)
+
+win.on_update(update)
+win.run()
+</code></pre>
+
+<h3>Ultimate Tower Defense</h3>
+<p>Shows timers, sprites, Tkinter widget integration, and optional audio.</p>
+<pre><code>from game_py import Window, Sprite, Timer
+from tkinter import Label
+import random
+
+win = Window(800, 600, "Tower Defense", bg="skyblue")
+currency = 100
+towers, enemies = [], []
+
+currency_label = Label(win.root, text=f"Currency: {currency}", font=("Arial", 16), bg="yellow")
+win.add_widget(currency_label, x=10, y=10)
+
+class Tower(Sprite):
+    def __init__(self, canvas, x, y):
+        super().__init__(canvas, x=x, y=y, width=40, height=40, color="blue")
+        self.range = 120
+        self.damage = 10
+        self.cooldown = 0.5
+        self.last_shot = 0
+    def update(self, dt):
+        self.last_shot += dt
+        for enemy in enemies:
+            if self.last_shot >= self.cooldown:
+                enemy.health -= self.damage
+                self.last_shot = 0
+
+class Enemy(Sprite):
+    def __init__(self, canvas, x, y, health=50, speed=50):
+        super().__init__(canvas, x=x, y=y, width=30, height=30, color="red")
+        self.health = health
+        self.speed = speed
+    def update(self, dt):
+        self.move(self.speed * dt, 0)
+        if self.x > win.width:
+            self.set_position(0, random.randint(50, win.height-50))
+            self.health = 50
+
+def place_tower():
+    global currency
+    x, y = win.mouse_pos
+    if currency >= 50:
+        tower = Tower(win.canvas, x-20, y-20)
+        towers.append(tower)
+        win.add_sprite(tower)
+        currency -= 50
+        currency_label.config(text=f"Currency: {currency}")
+
+win.root.bind("<Button-1>", lambda e: place_tower())
+
+def spawn_enemy():
+    enemy = Enemy(win.canvas, x=0, y=random.randint(50, win.height-50))
+    enemies.append(enemy)
+    win.add_sprite(enemy)
+
+Timer(win, 2000, spawn_enemy, repeat=True)
+
+def update(dt):
+    global currency
+    for t in towers: t.update(dt)
+    for e in enemies[:]:
+        e.update(dt)
+        if e.health <= 0:
+            win.canvas.delete(e.id)
+            enemies.remove(e)
+            currency += 20
+            currency_label.config(text=f"Currency: {currency}")
+
+win.on_update(update)
+win.run()
+</code></pre>
+
+</section>
+
+<section>
+<h2>Key Features Summary</h2>
+<ul>
+    <li>Pygame-like simplicity on Tkinter Canvas</li>
+    <li>Sprites & Animations (rectangles, circles, images, sprite sheets)</li>
+    <li>Delta-time movement & collisions</li>
+    <li>Timers & scheduled events</li>
+    <li>Keyboard & Mouse input</li>
+    <li>Optional audio system with safe fallback</li>
+    <li>Insert Tkinter widgets anywhere in the window</li>
+    <li>Easy to extend for 2D games or interactive apps</li>
+</ul>
+</section>
+
+<section>
+<h2>License</h2>
+<p>MIT License</p>
+</section>
+
+</body>
+</html>
